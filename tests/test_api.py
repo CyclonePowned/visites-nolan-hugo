@@ -33,3 +33,8 @@ def test_metrics(client):
 def test_root_redis_reel():
     response = TestClient(main.app).get("/")
     assert response.status_code == 200
+
+def test_reset_compteur(client):
+    response = client.post("/reset")
+    assert response.status_code == 200
+    assert response.json() == {"visites": 0}
