@@ -1,4 +1,4 @@
-# Visites : compteur de visites
+# Visites : API de comptage des visites
 
 API FastAPI qui compte les visites dans Redis.
 
