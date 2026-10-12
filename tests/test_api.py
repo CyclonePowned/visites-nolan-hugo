@@ -43,3 +43,14 @@ def test_reset_compteur(client):
     assert response.json() == {"visites": 0}
     response2 = client.get("/")
     assert response2.json() == {"visites": 1}
+
+
+def test_root_en_tete_version(client):
+    response = client.get("/")
+    assert response.headers["X-Visites-Version"] == "0.1.0"
+
+
+def test_root_redis_absent(monkeypatch):
+    monkeypatch.setattr(main, "r", redis.Redis(host="localhost", port=1))
+    response = TestClient(main.app, raise_server_exceptions=False).get("/")
+    assert response.status_code == 500
