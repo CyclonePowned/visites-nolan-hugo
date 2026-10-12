@@ -14,6 +14,7 @@ Nous utilisons les **Conventional Commits**. Tous les commits doivent être **si
 Exemples de types : `feat`, `fix`, `docs`, `test`, `chore`, `style`.
 
 ## Commandes utiles
+- Installer les dépendances : `pip install -e ".[dev]"`
 - Lancer les tests : `pytest -q`
 - Installer pre-commit : `pre-commit install`
 - Lancer pre-commit manuellement : `pre-commit run --all-files`
