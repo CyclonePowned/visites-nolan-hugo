@@ -4,42 +4,28 @@
 
 ### Q1. Temps entre le premier commit et sa fusion sur main
 
-Premier commit (`feat(api): exposer la version dans X-Visites-Version`) : 12/10/2026 à 11 h 31.
-Fusion sur main (PR #1, squash) : 12/10/2026 à 13 h 36.
-Délai de changement : environ 2 h 05. L'essentiel est de l'attente : revue par l'autre membre, demande de changement, puis rebase à cause d'un conflit avec la PR #4 fusionnée entre-temps.
+Mon premier commit (l'en-tête X-Visites-Version) date de 11 h 31 et il a été fusionné sur main à 13 h 36, donc environ 2 h. La plupart du temps c'était de l'attente : la revue de Hugo, la correction demandée, puis un rebase parce que sa PR /reset avait été fusionnée avant et touchait le même fichier de tests.
 
 ### Q2. Ce qui ne dépend pas de GitHub
 
-Fonctionne tel quel sur GitLab, Gitea ou Forgejo :
-
-- tout Git : branches, commits conventionnels, rebase, résolution de conflit, `--force-with-lease`, tags ;
-- la signature SSH des commits et des tags, et sa vérification locale (`allowed_signers`) ;
-- pre-commit et ruff, qui tournent sur le poste ;
-- l'application, les tests pytest, Redis dans Docker.
-
-Ce qui changerait :
-
-- les commandes `gh` (création du dépôt, PR, revue, fusion) : `glab` sur GitLab, `tea` sur Gitea/Forgejo, ou l'interface web ;
-- le vocabulaire : « merge request » sur GitLab au lieu de « pull request » ;
-- les réglages de la forge : modèle de dépôt, collaborateurs, protection de branche, ajout des clés SSH.
+Tout ce qui est Git marche pareil sur GitLab, Gitea ou Forgejo : les branches, les commits, le rebase, le conflit, le force-with-lease, les tags et la signature SSH. Pre-commit, ruff, les tests et Redis dans Docker tournent sur notre machine, donc ça ne change rien non plus. Ce qui changerait, ce sont les commandes gh (il faudrait glab ou tea, ou passer par le site), le nom des PR (merge request sur GitLab) et les réglages du dépôt comme les collaborateurs ou les clés SSH.
 
 ### Q3. Pourquoi signer les commits si la forge vérifie déjà qui pousse
 
-La forge vérifie seulement qui pousse, pas qui a écrit chaque commit. N'importe qui peut mettre le nom et l'e-mail d'un autre dans `user.name` / `user.email`. Si quelqu'un pousse un clone contenant des commits d'autres personnes, la forge ne voit que le pousseur. Et si le dépôt est migré vers une autre forge, l'information « qui a poussé » est perdue. La signature est dans le commit lui-même : elle prouve l'auteur partout, sur n'importe quelle forge et même hors ligne.
+La forge sait qui a poussé, mais pas qui a écrit chaque commit. N'importe qui peut mettre le nom et l'e-mail de quelqu'un d'autre dans sa config Git. Si quelqu'un pousse un clone avec les commits des autres, ou si on change de forge, on perd cette info. La signature reste dans le commit, donc on peut toujours vérifier l'auteur, peu importe où est le dépôt.
 
 ### Ce qui nous a pris le plus de temps
 
-- **Installer Git 2.56** : la distribution ne fournit qu'une version plus ancienne, sans `git add --resolved`. Il a fallu le compiler depuis les sources, et la compilation a d'abord échoué faute de Rust.
-- **La signature des commits** : la clé SSH n'était ajoutée sur GitHub qu'en authentification, pas en signature. Le premier commit de B est donc apparu « non vérifié » (`unknown_key`) jusqu'à l'ajout de la clé en type *Signing Key*.
-- **pre-commit avant sa fusion** : une fois le hook installé, les commits sur les autres branches échouaient avec « No .pre-commit-config.yaml » tant que la PR pre-commit n'était pas sur main.
-- **Un conflit non prévu** : les PR #1 et #4 ajoutaient chacune un test à la fin de `tests/test_api.py`. La #1 a dû être rebasée après la fusion de la #4.
-- **L'attente entre nous** : la plus grande partie du délai vient des allers-retours de revue (demande de changement, correction, approbation) et de la coordination pour que le conflit volontaire de l'étape 5 se produise dans le bon ordre.
+Installer Git 2.56, parce que Debian a une version plus ancienne et qu'il a fallu le compiler. Ensuite la signature : la clé de Hugo n'était pas ajoutée en clé de signature sur GitHub, donc son premier commit apparaissait non vérifié. On a aussi eu un conflit qu'on n'avait pas prévu entre nos deux PR sur le fichier de tests. Et pas mal d'attente entre nous pour les revues et pour faire le conflit de l'étape 5 dans le bon ordre.
 
-## Réponses aux questions des étapes
+### Réponses aux questions des étapes
 
-- **Étape 1, `~/.ssh/allowed_signers` :** il associe une adresse e-mail à une clé publique SSH de confiance. `git log --show-signature` l'utilise pour dire si la signature est bonne et à qui elle appartient. Sans lui, Git ne peut pas relier la signature à une personne.
-- **Étape 2, modèle ou fork :** un dépôt créé depuis un modèle repart d'un historique neuf, sans lien avec l'original. Un fork garde tout l'historique et reste lié au dépôt d'origine pour lui proposer des PR.
-- **Étape 4, la branche locale après le squash :** elle reste sur le poste avec ses commits d'origine. Le squash a créé sur main un commit nouveau, avec une autre empreinte, donc Git ne voit pas la branche comme fusionnée et `git branch -d` refuse de la supprimer. Il faut `git branch -D`.
-- **Étape 5, `--force-with-lease` :** il ne force le push que si la branche distante est encore dans l'état que l'on connaît. Si quelqu'un a poussé entre-temps, il refuse au lieu d'écraser son travail. `--force` écrase sans vérifier.
-- **Étape 5, résolution du conflit :** c'est Hugo (B) qui a résolu manuellement le conflit sur le titre du README : `git rebase origin/main`, édition de `README.md` pour garder un seul titre réconcilié (« Visites : API de comptage des visites »), `git add --resolved`, `git rebase --continue`, puis `git push --force-with-lease`.
-- **Étape 6, fichier mal formaté :** le hook pre-commit bloque le commit. ruff-format reformate le fichier ; il faut refaire `git add` puis recommiter. `git commit --no-verify` saute les hooks : le commit passe sans contrôle, d'où l'intérêt de relancer les contrôles en CI.
+Étape 1 : le fichier allowed_signers associe une adresse e-mail à une clé publique. git log --show-signature s'en sert pour savoir à qui appartient la signature.
+
+Étape 2 : un dépôt créé depuis un modèle repart de zéro, sans l'historique ni de lien avec l'original. Un fork garde tout l'historique et reste lié au dépôt d'origine.
+
+Étape 4 : après le squash, la branche locale existe toujours. Le commit sur main est un nouveau commit, donc Git pense que la branche n'est pas fusionnée et git branch -d refuse. Il faut utiliser -D.
+
+Étape 5 : c'est Hugo qui a résolu le conflit sur le titre du README, avec un rebase sur main puis git add --resolved. --force-with-lease vérifie que personne n'a poussé sur la branche entre temps avant d'écraser, alors que --force écrase sans regarder.
+
+Étape 6 : si un fichier Python est mal formaté, pre-commit bloque le commit et ruff corrige le fichier, il faut refaire git add puis commit. Avec --no-verify les hooks sont ignorés et le commit passe quand même.
