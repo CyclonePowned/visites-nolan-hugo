@@ -35,6 +35,10 @@ def test_root_redis_reel():
     assert response.status_code == 200
 
 def test_reset_compteur(client):
+    client.get("/")
+    client.get("/")
     response = client.post("/reset")
     assert response.status_code == 200
     assert response.json() == {"visites": 0}
+    response2 = client.get("/")
+    assert response2.json() == {"visites": 1}
