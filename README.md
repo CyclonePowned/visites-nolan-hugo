@@ -14,8 +14,20 @@ uvicorn app.main:app --reload
 
 ## Endpoints
 
-| Méthode | Chemin     | Rôle                          |
-|---------|------------|-------------------------------|
-| GET     | `/`        | incrémente et renvoie le compteur |
-| GET     | `/health`  | état de l'API et de Redis     |
-| GET     | `/metrics` | métriques Prometheus          |
+| Méthode | Chemin     | Rôle                                                        |
+|---------|------------|-------------------------------------------------------------|
+| GET     | `/`        | incrémente et renvoie le compteur, en-tête `X-Visites-Version` |
+| POST    | `/reset`   | remet le compteur à zéro et renvoie `{"visites": 0}`        |
+| GET     | `/health`  | état de l'API et de Redis (503 si Redis est absent)         |
+| GET     | `/metrics` | métriques Prometheus                                        |
+
+## Contrôles avant commit
+
+```bash
+pre-commit install
+pre-commit run --all-files
+```
+
+## Contribuer
+
+Voir [CONTRIBUTING.md](CONTRIBUTING.md).
