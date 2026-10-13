@@ -1,3 +1,5 @@
+[![CI](https://github.com/CyclonePowned/visites-nolan-hugo/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/CyclonePowned/visites-nolan-hugo/actions/workflows/ci.yml)
+
 # Visites : API de comptage des visites
 
 API FastAPI qui compte les visites dans Redis.
