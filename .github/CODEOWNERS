@@ -5,3 +5,4 @@
 /app/           @hugo3dmaker
 /monitoring/    @hugo3dmaker
 /docs/          @CyclonePowned @hugo3dmaker
+# Test : une PR touchant .github/ doit demander la revue de @CyclonePowned
