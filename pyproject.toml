@@ -8,7 +8,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 # fastapi volontairement en retard d'une version (Dependabot, TP02)
 dependencies = [
-    "fastapi==0.120.0",
+    "fastapi==0.143.0",
     "uvicorn[standard]>=0.38",
     "redis>=6.4",
     "prometheus-client>=0.23",
