@@ -56,8 +56,8 @@ Quasiment pas du tout. Des robots lisent en continu tout ce qui est poussé sur 
 
 Étape 1 : « dismiss stale approvals » annule l'approbation dès qu'un nouveau commit est poussé sur la PR. Sans ça, quelqu'un pourrait faire approuver une PR propre, puis ajouter autre chose juste avant de fusionner, sans que personne ne relise. On a testé : le push direct sur main est refusé avec GH013, et une PR avec un commit non signé reste bloquée.
 
-Étape 2 : si le seul propriétaire d'un dossier est absent, plus aucune PR qui touche ce dossier ne peut être fusionnée. Il faut toujours au moins deux propriétaires par dossier, ou une équipe, et prévoir qui peut contourner la règle en cas d'urgence.
+Étape 2 : si le seul propriétaire d'un dossier est absent, plus aucune PR qui touche ce dossier ne peut être fusionnée. Il faut toujours au moins deux propriétaires par dossier, ou une équipe, et prévoir qui peut contourner la règle en cas d'urgence. On a testé avec une PR de Hugo qui modifiait .github/CODEOWNERS : GitHub a demandé tout seul la revue de Nolan.
 
-Étape 3 : une PR Dependabot doit être approuvée par l'un de nous, comme les autres. C'est une bonne chose parce que le robot modifie des dépendances qui vont tourner chez nous. Quelqu'un doit vérifier ce qui change, surtout si une dépendance a été compromise.
+Étape 3 : une PR Dependabot doit être approuvée par l'un de nous, comme les autres. C'est une bonne chose parce que le robot modifie des dépendances qui vont tourner chez nous. Quelqu'un doit vérifier ce qui change, surtout si une dépendance a été compromise. Juste après la fusion de dependabot.yml, Dependabot a ouvert cinq PR pour mettre à jour des paquets pip (httpx, pre-commit, prometheus-client, pytest-cov et uvicorn).
 
 Étape 4 : avec AWS_SECRET_ACCESS_KEY et une valeur de 40 caractères, le commit est refusé (règle generic-api-key, entropie 4,87, app/config.py). Avec la même valeur dans une variable appelée MA_VARIABLE, le commit passe. gitleaks se sert donc du nom de la variable en plus de la valeur : il faut un mot comme key ou secret et une valeur assez aléatoire.
